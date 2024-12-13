@@ -60,14 +60,20 @@ echo -e "总Swap: ${GREEN}$TOTAL_SWAP${RESET}"
 echo -e "已用Swap: ${GREEN}$USED_SWAP${RESET}"
 echo -e "空闲Swap: ${GREEN}$FREE_SWAP${RESET}"
 
-# 获取硬盘大小
+# 获取硬盘信息，排除docker挂载
 echo -e "\n${YELLOW}硬盘信息:${RESET}"
-DISK_SIZE=$(df -h --total | grep 'total' | awk '{print $2}')
-DISK_USED=$(df -h --total | grep 'total' | awk '{print $3}')
-DISK_FREE=$(df -h --total | grep 'total' | awk '{print $4}')
-echo -e "总硬盘: ${GREEN}$DISK_SIZE${RESET}"
-echo -e "已用硬盘: ${GREEN}$DISK_USED${RESET}"
-echo -e "空闲硬盘: ${GREEN}$DISK_FREE${RESET}"
+# 排除docker挂载目录 /var/lib/docker
+DISK_INFO=$(df -h --exclude-type=tmpfs --exclude-type=devtmpfs | grep -v '/var/lib/docker' | grep -E '^/dev|/mnt|/data' | awk '{print $1, $2, $3, $4}')
+while read -r LINE; do
+    DEVICE=$(echo $LINE | awk '{print $1}')
+    TOTAL=$(echo $LINE | awk '{print $2}')
+    USED=$(echo $LINE | awk '{print $3}')
+    FREE=$(echo $LINE | awk '{print $4}')
+    echo -e "设备: ${GREEN}$DEVICE${RESET}"
+    echo -e "总空间: ${GREEN}$TOTAL${RESET}"
+    echo -e "已用空间: ${GREEN}$USED${RESET}"
+    echo -e "空闲空间: ${GREEN}$FREE${RESET}"
+done <<< "$DISK_INFO"
 
 # 获取系统运行时长
 echo -e "\n${YELLOW}系统运行时长:${RESET}"
