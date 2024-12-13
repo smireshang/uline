@@ -1,9 +1,10 @@
 #!/bin/bash
 
+# 获取操作系统信息
 if [ -f /etc/os-release ]; then
-    # 读取 /etc/os-release 文件
     source /etc/os-release
-    
+
+    # 判断是 Debian 还是 Ubuntu
     if [[ "$ID" == "debian" ]]; then
         echo "This is a Debian-based system."
         echo "Version: $VERSION"
@@ -20,3 +21,7 @@ elif [ -f /etc/freebsd-version ]; then
 else
     echo "Unknown system."
 fi
+
+# 获取内核版本
+echo "Kernel Version:"
+uname -r
