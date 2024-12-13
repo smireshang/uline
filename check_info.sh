@@ -42,33 +42,38 @@ echo -e "\n${YELLOW}内核版本:${RESET}"
 KERNEL=$(uname -r)
 echo -e "内核版本: ${GREEN}$KERNEL${RESET}"
 
-# 获取内存信息
+# 获取内存信息，格式化显示为 GB、MB 或 B
 echo -e "\n${YELLOW}内存信息:${RESET}"
-TOTAL_MEMORY=$(free -h | awk '/^Mem:/ {print $2}')
-USED_MEMORY=$(free -h | awk '/^Mem:/ {print $3}')
-FREE_MEMORY=$(free -h | awk '/^Mem:/ {print $4}')
-echo -e "总内存: ${GREEN}$TOTAL_MEMORY${RESET}"
-echo -e "已用内存: ${GREEN}$USED_MEMORY${RESET}"
-echo -e "空闲内存: ${GREEN}$FREE_MEMORY${RESET}"
+TOTAL_MEMORY=$(free -m | awk '/^Mem:/ {print $2}')
+USED_MEMORY=$(free -m | awk '/^Mem:/ {print $3}')
+FREE_MEMORY=$(free -m | awk '/^Mem:/ {print $4}')
+echo -e "总内存: ${GREEN}$TOTAL_MEMORY MB${RESET}"
+echo -e "已用内存: ${GREEN}$USED_MEMORY MB${RESET}"
+echo -e "空闲内存: ${GREEN}$FREE_MEMORY MB${RESET}"
 
-# 获取Swap信息
+# 获取Swap信息，格式化显示为 GB、MB 或 B
 echo -e "\n${YELLOW}Swap信息:${RESET}"
-TOTAL_SWAP=$(free -h | awk '/^Swap:/ {print $2}')
-USED_SWAP=$(free -h | awk '/^Swap:/ {print $3}')
-FREE_SWAP=$(free -h | awk '/^Swap:/ {print $4}')
-echo -e "总Swap: ${GREEN}$TOTAL_SWAP${RESET}"
-echo -e "已用Swap: ${GREEN}$USED_SWAP${RESET}"
-echo -e "空闲Swap: ${GREEN}$FREE_SWAP${RESET}"
+TOTAL_SWAP=$(free -m | awk '/^Swap:/ {print $2}')
+USED_SWAP=$(free -m | awk '/^Swap:/ {print $3}')
+FREE_SWAP=$(free -m | awk '/^Swap:/ {print $4}')
+echo -e "总Swap: ${GREEN}$TOTAL_SWAP MB${RESET}"
+echo -e "已用Swap: ${GREEN}$USED_SWAP MB${RESET}"
+echo -e "空闲Swap: ${GREEN}$FREE_SWAP MB${RESET}"
 
-# 获取硬盘信息，排除docker挂载
+# 获取硬盘信息，排除docker挂载，格式化显示为 GB、MB 或 B
 echo -e "\n${YELLOW}硬盘信息:${RESET}"
-# 排除docker挂载目录 /var/lib/docker
 DISK_INFO=$(df -h --exclude-type=tmpfs --exclude-type=devtmpfs | grep -v '/var/lib/docker' | grep -E '^/dev|/mnt|/data' | awk '{print $1, $2, $3, $4}')
 while read -r LINE; do
     DEVICE=$(echo $LINE | awk '{print $1}')
     TOTAL=$(echo $LINE | awk '{print $2}')
     USED=$(echo $LINE | awk '{print $3}')
     FREE=$(echo $LINE | awk '{print $4}')
+    
+    # 格式化硬盘显示单位
+    TOTAL=$(echo $TOTAL | sed 's/\([0-9\.]*[KMG]*\)/\1 /')
+    USED=$(echo $USED | sed 's/\([0-9\.]*[KMG]*\)/\1 /')
+    FREE=$(echo $FREE | sed 's/\([0-9\.]*[KMG]*\)/\1 /')
+
     echo -e "设备: ${GREEN}$DEVICE${RESET}"
     echo -e "总空间: ${GREEN}$TOTAL${RESET}"
     echo -e "已用空间: ${GREEN}$USED${RESET}"
